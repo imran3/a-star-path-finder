@@ -8,9 +8,7 @@ Learn more about it [here](https://www.redblobgames.com/pathfinding/a-star/intro
 
 # How do i run this locally?
 
-You need ....
-
-## Commands avaiable
+This project is built with React, you need have Node.js installed in order to run it locally. In the project directory, you can run:
 
 ### `npm start`
 
