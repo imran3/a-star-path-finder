@@ -17,7 +17,7 @@ const colors = {
 
 export const App = () => {
   let [grid, setGrid] = useState([]);
-  const engine = new Engine(grid, setGrid);
+  const engine = new Engine();
 
   // initialize game
   useEffect(() => {
@@ -48,7 +48,11 @@ export const App = () => {
           </header>
         </Row>
         <div
-          style={{ margin: '1rem', display: 'flex', justifyContent: 'center' }}
+          style={{
+            margin: '1rem',
+            display: 'flex',
+            justifyContent: 'space-between',
+          }}
         >
           <PrettyGrid grid={grid}></PrettyGrid>
 
@@ -56,7 +60,7 @@ export const App = () => {
             className="controls"
             style={{ display: 'flex', justifyContent: 'space-between' }}
           >
-            <Button onClick={() => engine.step()}>Take Step</Button>
+            <Button onClick={() => engine.takeStep()}>Take Step</Button>
             <Button onClick={() => engine.computeAllPaths()} variant="success">
               Compute all paths
             </Button>
