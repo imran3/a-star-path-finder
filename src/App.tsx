@@ -47,28 +47,36 @@ export const App = () => {
             <h1 className="title">A* Star: a path finder algorithm</h1>
           </header>
         </Row>
-        <div
-          style={{
-            margin: '1rem',
-            display: 'flex',
-            justifyContent: 'space-between',
-          }}
-        >
-          <PrettyGrid grid={grid}></PrettyGrid>
 
+        <Row>
+          <PrettyGrid grid={grid}></PrettyGrid>
+        </Row>
+
+        <Row>
           <div
-            className="controls"
-            style={{ display: 'flex', justifyContent: 'space-between' }}
+            style={{
+              margin: '1rem',
+              display: 'flex',
+              justifyContent: 'space-between',
+            }}
           >
-            <Button onClick={() => engine.takeStep()}>Take Step</Button>
-            <Button onClick={() => engine.computeAllPaths()} variant="success">
-              Compute all paths
-            </Button>
-            <Button onClick={() => engine.resetGrid()} variant="danger">
-              Reset
-            </Button>
+            <div
+              className="controls"
+              style={{ display: 'flex', justifyContent: 'space-between' }}
+            >
+              <Button onClick={() => engine.takeStep()}>Take Step</Button>
+              <Button
+                onClick={() => engine.computeAllPaths()}
+                variant="success"
+              >
+                Compute all paths
+              </Button>
+              <Button onClick={() => engine.resetGrid()} variant="danger">
+                Reset
+              </Button>
+            </div>
           </div>
-        </div>
+        </Row>
 
         <Row>
           <Col>

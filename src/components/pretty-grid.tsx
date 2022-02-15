@@ -12,7 +12,8 @@ export const PrettyGrid = ({ grid }) => {
                     align="center"
                     className="tableCell"
                     style={{
-                      background: cell.color,
+                      width: '1.5rem',
+                      height: '1.5rem',
                       border: '5px solid red',
                     }}
                   >
