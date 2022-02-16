@@ -1,9 +1,10 @@
 import { Button, Card, Col, Container, Navbar, Row } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
-import { Engine } from './services/engine';
+import { Cell, Engine } from './services/engine';
 import { useEffect, useState } from 'react';
 import { PrettyGrid } from './components/pretty-grid';
+import { GridCellStyled, GridRowStyled, GridStyled } from './components/styles';
 
 const colors = {
   StarCommandBlue: '#2274a5',
@@ -16,13 +17,12 @@ const colors = {
 };
 
 export const App = () => {
-  let [grid, setGrid] = useState([]);
-  const engine = new Engine();
+  let [gridState, setGridState] = useState<Cell[][]>([]);
+  const engine = new Engine(gridState, setGridState);
 
   // initialize game
   useEffect(() => {
     engine.resetGrid();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -49,7 +49,17 @@ export const App = () => {
         </Row>
 
         <Row>
-          <PrettyGrid grid={grid}></PrettyGrid>
+          <GridStyled>
+            {gridState.map((row, rIndex) => (
+              <GridRowStyled key={rIndex}>
+                {row.map((cell, cIndex) => (
+                  <GridCellStyled key={rIndex + '-' + cIndex}>
+                    {cell.status}
+                  </GridCellStyled>
+                ))}
+              </GridRowStyled>
+            ))}
+          </GridStyled>
         </Row>
 
         <Row>
@@ -57,7 +67,7 @@ export const App = () => {
             style={{
               margin: '1rem',
               display: 'flex',
-              justifyContent: 'space-between',
+              justifyContent: 'center',
             }}
           >
             <div
@@ -76,34 +86,6 @@ export const App = () => {
               </Button>
             </div>
           </div>
-        </Row>
-
-        <Row>
-          <Col>
-            <Card>
-              <Card.Header>Quote</Card.Header>
-              <Card.Body>
-                <blockquote className="blockquote mb-0">
-                  <p>
-                    {' '}
-                    “We can only see a short distance ahead, but we can see
-                    plenty there that needs to be done.”{' '}
-                  </p>
-                  <footer className="blockquote-footer">
-                    <a href="https://www.goodreads.com/author/show/87041.Alan_Turing">
-                      Alan Turing
-                    </a>{' '}
-                    in{' '}
-                    <cite title="Source Title">
-                      <a href="https://www.goodreads.com/work/quotes/24738161-computing-machinery-and-intelligence">
-                        Computing machinery and intelligence
-                      </a>
-                    </cite>
-                  </footer>
-                </blockquote>
-              </Card.Body>
-            </Card>
-          </Col>
         </Row>
       </Container>
     </div>

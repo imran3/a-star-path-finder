@@ -9,6 +9,8 @@ const cols = 5;
 
 export class Engine {
   grid: Cell[][];
+  gridState;
+  setGridState;
 
   frontier: Cell[]; // acting as queue (push=enque, shift= deque)
   came_from: { [key: string]: Cell };
@@ -25,8 +27,10 @@ export class Engine {
     status: 'G',
   };
 
-  constructor() {
+  constructor(gridState, setGridState) {
     this.grid = [];
+    this.gridState = gridState;
+    this.setGridState = setGridState;
     this.frontier = [];
     this.came_from = {};
   }
@@ -50,6 +54,7 @@ export class Engine {
     this.goalCell.y = Math.floor(Math.random() * cols);
     this.updateGridCell(this.goalCell);
 
+    this.setGridState(this.grid);
     console.log('grid reset');
     this.printGrid();
   };
