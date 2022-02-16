@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 
 export const GridStyled = styled.div`
-  background: red;
   padding: 1rem;
 `;
 

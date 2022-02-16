@@ -17,7 +17,17 @@ const colors = {
 
 export const App = () => {
   let [gridState, setGridState] = useState<Cell[][]>([]);
-  const engine = new Engine(gridState, setGridState);
+  let [frontierState, setFrontierState] = useState<Cell[]>([]);
+  let [cameFromState, setCameFromState] = useState<{ [key: string]: Cell }>({});
+
+  const engine = new Engine(
+    gridState,
+    setGridState,
+    frontierState,
+    setFrontierState,
+    cameFromState,
+    setCameFromState
+  );
 
   // initialize game
   useEffect(() => {

@@ -9,30 +9,44 @@ const cols = 5;
 
 export class Engine {
   grid: Cell[][];
+
   gridState;
   setGridState;
+  frontierState;
+  setFrontierState;
+  cameFromState;
+  setCameFromState;
 
-  frontier: Cell[]; // acting as queue (push=enque, shift= deque)
-  came_from: { [key: string]: Cell };
+  frontier;
+  came_from;
 
   startCell: Cell = {
-    x: 2,
-    y: 2,
+    x: 0,
+    y: 0,
     status: 'S',
   };
 
   goalCell: Cell = {
-    x: 0,
+    x: rows - 1,
     y: cols - 1,
     status: 'G',
   };
 
-  constructor(gridState, setGridState) {
+  constructor(
+    gridState,
+    setGridState,
+    frontierState,
+    setFrontierState,
+    cameFromState,
+    setCameFromState
+  ) {
     this.grid = [];
     this.gridState = gridState;
     this.setGridState = setGridState;
-    this.frontier = [];
-    this.came_from = {};
+    this.frontierState = frontierState;
+    this.setFrontierState = setFrontierState;
+    this.cameFromState = cameFromState;
+    this.setCameFromState = setCameFromState;
   }
 
   resetGrid = (): void => {
@@ -41,8 +55,8 @@ export class Engine {
     this.grid = newGrid;
 
     // delete previous paths
-    this.frontier = [];
-    this.came_from = {};
+    this.setFrontierState([]);
+    this.setCameFromState({});
 
     // put start cell
     this.startCell.x = Math.floor(Math.random() * rows);
@@ -55,8 +69,6 @@ export class Engine {
     this.updateGridCell(this.goalCell);
 
     this.setGridState(this.grid);
-    console.log('grid reset');
-    this.printGrid();
   };
 
   newGrid = (): Cell[][] => {
@@ -77,27 +89,53 @@ export class Engine {
   };
 
   updateGridCell = (cell: Cell): void => {
-    this.grid[cell.x][cell.y] = cell;
+    let newGrid = [...this.grid];
+    newGrid[cell.x][cell.y] = cell;
+
+    this.setGridState(newGrid);
   };
 
   putStart = (startCell: Cell) => {
-    this.frontier.push(startCell);
-    this.came_from[startCell.x + '-' + startCell.y] = null;
+    // this.frontier.push(startCell);
+    // this.came_from[startCell.x + '-' + startCell.y] = null;
+
+    this.setFrontierState([startCell]);
+
+    let initCameFrom = {};
+    initCameFrom[startCell.x + '-' + startCell.y] = null;
+    this.setCameFromState(initCameFrom);
 
     this.updateGridCell(startCell);
   };
 
   computeAllPaths() {
-    while (this.frontier.length > 0) {
+    this.frontier = [...this.frontierState];
+    this.came_from = { ...this.cameFromState };
+    this.grid = [...this.gridState];
+
+    let x = 0;
+    while (this.frontier.length > 0 && x < 1000) {
       // early exit: stop computing paths as soon as goal cells become next to deque
       //if (this.frontier[0] === this.goalCell) return;
 
       this.takeStep();
+      x++;
     }
 
-    if (this.frontier.length <= 0) {
-      console.log('frontier empty');
+    if (x === 1000) {
+      console.log('stopped infin loop computeAllPaths()');
+    }
 
+    // // this.setFrontierState(this.frontier);
+    this.setCameFromState(this.came_from);
+
+    if (this.frontier.length <= 0) {
+      console.log('Frontier empty');
+
+      this.came_from[this.startCell.x + '-' + this.startCell.y].status = 'S';
+      this.came_from[this.goalCell.x + '-' + this.goalCell.y].status = 'G';
+
+      console.log('came from', this.came_from);
       let pathGrid = this.newGrid();
       let pathCells = this.getPath(this.startCell, this.goalCell);
 
@@ -105,14 +143,25 @@ export class Engine {
         pathGrid[cell.x][cell.y].status = 'G';
       });
 
+      console.log('pathCells', pathCells);
+      console.log('pathGrid', pathGrid);
+      this.setGridState(pathGrid);
       this.printGrid(pathGrid);
     }
   }
 
   takeStep(): void {
+    // let current = this.frontierState[0];
+    // let shiftedState = [...this.frontierState];
+
+    // shiftedState.shift();
+
+    // this.setFrontierState(shiftedState);
+
     let current = this.frontier[0];
     this.frontier.shift();
 
+    // console.log(this.frontierState, shiftedState);
     if (current) {
       let currentNeigbors = this.cellNeighbours(current);
 
@@ -120,10 +169,13 @@ export class Engine {
         if (!this.came_from[neighborgCell.x + '-' + neighborgCell.y]) {
           this.frontier.push(neighborgCell);
           this.came_from[neighborgCell.x + '-' + neighborgCell.y] = current;
+          // this.setFrontierState([...shiftedState, neighborgCell]);
+
+          // let newCameFrom = { ...this.cameFromState };
+          // newCameFrom[this.startCell.x + '-' + this.startCell.y] = current;
+          // this.setCameFromState(newCameFrom);
         }
       });
-
-      this.printGrid();
     }
   }
 
@@ -131,11 +183,19 @@ export class Engine {
     let current = goalCell;
     let path: Cell[] = [];
 
-    while (current != startCell) {
+    let x = 0;
+    while (current.status !== startCell.status && x < 100) {
       path.push(current);
       current = this.came_from[current.x + '-' + current.y];
+      console.log('C', current.x, current.y);
+
+      x++;
     }
 
+    if (x === 100) {
+      console.log('stopped infin loop getPath()');
+    }
+    path.push(current);
     path.push(this.startCell);
 
     return path;
@@ -173,14 +233,15 @@ export class Engine {
   };
 
   printGrid(grid = this.grid) {
-    let pgrid = '';
-    for (let i = 0; i < rows; i++) {
-      pgrid += '\n';
-      for (let j = 0; j < cols; j++) {
-        pgrid += grid[i][j].status + ' | ';
-      }
-    }
+    return;
+    // let pgrid = '';
+    // for (let i = 0; i < rows; i++) {
+    //   pgrid += '\n';
+    //   for (let j = 0; j < cols; j++) {
+    //     pgrid += grid[i][j].status + ' | ';
+    //   }
+    // }
 
-    console.log(pgrid);
+    // console.log(this.gridState);
   }
 }
