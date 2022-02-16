@@ -3,7 +3,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import { Cell, Engine } from './services/engine';
 import { useEffect, useState } from 'react';
-import { PrettyGrid } from './components/pretty-grid';
 import { GridCellStyled, GridRowStyled, GridStyled } from './components/styles';
 
 const colors = {
