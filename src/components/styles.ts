@@ -10,12 +10,13 @@ export const GridRowStyled = styled.div`
 `;
 
 export const GridCellStyled = styled.div`
-  width: 3rem;
-  height: 3rem;
-  background: yellow;
-  padding: 0.5rem;
-  border: 1px solid blue;
-  margin: 0, 5rem;
   display: flex;
   justify-content: center;
+  width: 8rem;
+  height: 8rem;
+  margin: 0, 5rem;
+  padding: 0.5rem;
+  border: 1px solid blue;
+  cursor: pointer;
+  background: ${props => (props.bgColor ? props.bgColor : 'yellow')};
 `;
