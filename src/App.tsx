@@ -34,8 +34,21 @@ export const App = () => {
     engine.resetGrid();
   }, []);
 
+  const handleCellClick = cell => {
+    console.log('cell click', cell);
+    let ng = [...gridState];
+    ng[engine.startCell.x][engine.startCell.y].status = ' ';
+    ng[engine.startCell.x][engine.startCell.y].bgColor = 'yellow';
+
+    setGridState(ng);
+
+    let startCell = { ...cell, bgColor: 'red', status: 'S' };
+    engine.startCell = startCell;
+    engine.putStart(startCell);
+  };
+
   return (
-    <div className="App" style={{ backgroundColor: colors.StarCommandBlue }}>
+    <div className="App" style={{ backgroundColor: colors.NaplesYellow }}>
       <Navbar bg="dark" variant="dark" style={{ marginBottom: '1rem' }}>
         <Container>
           <Navbar.Brand href="#home">
@@ -62,8 +75,22 @@ export const App = () => {
             {gridState.map((row, rIndex) => (
               <GridRowStyled key={rIndex}>
                 {row.map((cell, cIndex) => (
-                  <GridCellStyled key={rIndex + '-' + cIndex}>
-                    {cell.status}
+                  <GridCellStyled
+                    onClick={() => {
+                      handleCellClick(cell);
+                    }}
+                    key={rIndex + '-' + cIndex}
+                    bgColor={cell.bgColor}
+                  >
+                    <div>
+                      <p>
+                        {cell.x} - {cell.y}
+                      </p>
+                      <p>
+                        <b>{cell.status}</b>
+                      </p>
+                      <p>{cell.cameFrom}</p>
+                    </div>
                   </GridCellStyled>
                 ))}
               </GridRowStyled>
