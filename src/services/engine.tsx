@@ -2,10 +2,12 @@ export interface Cell {
   x: number;
   y: number;
   status: string;
+  bgColor: string;
+  cameFrom?: string;
 }
 
-const rows = 5;
-const cols = 5;
+const rows = 3;
+const cols = 4;
 
 export class Engine {
   grid: Cell[][];
@@ -17,19 +19,21 @@ export class Engine {
   cameFromState;
   setCameFromState;
 
-  frontier;
+  frontier: Cell[];
   came_from;
 
   startCell: Cell = {
-    x: 0,
+    x: 2,
     y: 0,
     status: 'S',
+    bgColor: 'red',
   };
 
   goalCell: Cell = {
-    x: rows - 1,
-    y: cols - 1,
+    x: 0,
+    y: 1,
     status: 'G',
+    bgColor: ' green',
   };
 
   constructor(
@@ -41,6 +45,9 @@ export class Engine {
     setCameFromState
   ) {
     this.grid = [];
+    this.frontier = [];
+    this.came_from = {};
+
     this.gridState = gridState;
     this.setGridState = setGridState;
     this.frontierState = frontierState;
@@ -50,6 +57,9 @@ export class Engine {
   }
 
   resetGrid = (): void => {
+    // optional: randomize start and goal locations
+    this.randomizeStartAndGoal();
+
     // get clean grid
     const newGrid = this.newGrid();
     this.grid = newGrid;
@@ -58,18 +68,22 @@ export class Engine {
     this.setFrontierState([]);
     this.setCameFromState({});
 
-    // put start cell
-    this.startCell.x = Math.floor(Math.random() * rows);
-    this.startCell.y = Math.floor(Math.random() * cols);
+    // put start and goal cells
     this.putStart(this.startCell);
-
-    // put goal cell
-    this.goalCell.x = Math.floor(Math.random() * rows);
-    this.goalCell.y = Math.floor(Math.random() * cols);
     this.updateGridCell(this.goalCell);
 
     this.setGridState(this.grid);
   };
+
+  randomizeStartAndGoal() {
+    // put start cell (random location on grid)
+    this.startCell.x = Math.floor(Math.random() * rows);
+    this.startCell.y = Math.floor(Math.random() * cols);
+
+    // put goal cell (random location on grid)
+    this.goalCell.x = Math.floor(Math.random() * rows);
+    this.goalCell.y = Math.floor(Math.random() * cols);
+  }
 
   newGrid = (): Cell[][] => {
     let grid: Cell[][] = [];
@@ -81,6 +95,7 @@ export class Engine {
           status: ' ',
           x: i,
           y: j,
+          bgColor: 'yellow',
         };
       }
     }
@@ -95,9 +110,16 @@ export class Engine {
     this.setGridState(newGrid);
   };
 
+  updateGridCellBgColor = (x, y, color): void => {
+    let newGrid = [...this.grid];
+    newGrid[x][y].bgColor = color;
+
+    this.setGridState(newGrid);
+  };
+
   putStart = (startCell: Cell) => {
-    // this.frontier.push(startCell);
-    // this.came_from[startCell.x + '-' + startCell.y] = null;
+    this.frontier = [startCell];
+    this.came_from[startCell.x + '-' + startCell.y] = null;
 
     this.setFrontierState([startCell]);
 
@@ -126,54 +148,61 @@ export class Engine {
       console.log('stopped infin loop computeAllPaths()');
     }
 
-    // // this.setFrontierState(this.frontier);
+    // this.setFrontierState(this.frontier);
     this.setCameFromState(this.came_from);
 
     if (this.frontier.length <= 0) {
       console.log('Frontier empty');
 
-      this.came_from[this.startCell.x + '-' + this.startCell.y].status = 'S';
-      this.came_from[this.goalCell.x + '-' + this.goalCell.y].status = 'G';
+      //this.came_from[this.startCell.x + '-' + this.startCell.y] =
+      //this.startCell;
+      this.came_from[this.goalCell.x + '-' + this.goalCell.y].status =
+        this.goalCell.status;
 
-      console.log('came from', this.came_from);
       let pathGrid = this.newGrid();
-      let pathCells = this.getPath(this.startCell, this.goalCell);
 
+      let pathCells = this.getPath(this.startCell, this.goalCell);
       pathCells.forEach(cell => {
-        pathGrid[cell.x][cell.y].status = 'G';
+        pathGrid[cell.x][cell.y] = cell;
       });
 
-      console.log('pathCells', pathCells);
-      console.log('pathGrid', pathGrid);
+      // add coordinate of origin cell
+      for (const [key, value] of Object.entries(this.came_from)) {
+        let [x, y] = key.split('-');
+        if (value) {
+          pathGrid[x][y].cameFrom = value['x'] + '-' + value['y'];
+        }
+      }
+
       this.setGridState(pathGrid);
-      this.printGrid(pathGrid);
     }
   }
 
   takeStep(): void {
-    // let current = this.frontierState[0];
-    // let shiftedState = [...this.frontierState];
+    let current = this.frontier[0]; // pull unexplored cell from frontier (open list)
+    this.frontier.shift(); // remove currently explored cell from open list
 
-    // shiftedState.shift();
+    current.bgColor = 'blue';
+    this.updateGridCellBgColor(current.x, current.y, 'blue');
 
-    // this.setFrontierState(shiftedState);
+    if (current.x === this.startCell.x && current.y === this.startCell.y) {
+      console.log('exploring start cell');
+      this.updateGridCellBgColor(this.startCell.x, this.startCell.y, 'red');
+    }
 
-    let current = this.frontier[0];
-    this.frontier.shift();
-
-    // console.log(this.frontierState, shiftedState);
     if (current) {
-      let currentNeigbors = this.cellNeighbours(current);
+      let currentNeighbors = this.cellNeighbors(current);
 
-      currentNeigbors.forEach(neighborgCell => {
-        if (!this.came_from[neighborgCell.x + '-' + neighborgCell.y]) {
+      currentNeighbors.forEach(neighborgCell => {
+        if (neighborgCell.x + '-' + neighborgCell.y in this.came_from) {
+          console.log('cell already explored (in came_from)');
+        } else {
+          console.log('exploring new cell: came_from', this.came_from);
           this.frontier.push(neighborgCell);
-          this.came_from[neighborgCell.x + '-' + neighborgCell.y] = current;
-          // this.setFrontierState([...shiftedState, neighborgCell]);
 
-          // let newCameFrom = { ...this.cameFromState };
-          // newCameFrom[this.startCell.x + '-' + this.startCell.y] = current;
-          // this.setCameFromState(newCameFrom);
+          this.updateGridCellBgColor(neighborgCell.x, neighborgCell.y, 'blue');
+
+          this.came_from[neighborgCell.x + '-' + neighborgCell.y] = current;
         }
       });
     }
@@ -184,10 +213,11 @@ export class Engine {
     let path: Cell[] = [];
 
     let x = 0;
-    while (current.status !== startCell.status && x < 100) {
+    while (current && x < 100) {
+      console.log('current', current);
+      current.bgColor = 'pink';
       path.push(current);
       current = this.came_from[current.x + '-' + current.y];
-      console.log('C', current.x, current.y);
 
       x++;
     }
@@ -195,22 +225,20 @@ export class Engine {
     if (x === 100) {
       console.log('stopped infin loop getPath()');
     }
-    path.push(current);
-    path.push(this.startCell);
 
     return path;
   }
 
-  cellNeighbours(cell: Cell): Cell[] {
+  cellNeighbors(cell: Cell): Cell[] {
     let nCells: Cell[] = [];
-    const ngCellIndexs = [
+    const ngCellIndexes = [
       [-1, 0],
       [1, 0],
       [0, -1],
       [0, 1],
     ];
 
-    ngCellIndexs.forEach(([nx, ny]) => {
+    ngCellIndexes.forEach(([nx, ny]) => {
       let neighborgX = cell.x + nx;
       let neighborgY = cell.y + ny;
 
@@ -220,7 +248,12 @@ export class Engine {
         neighborgY >= 0 &&
         neighborgY < cols
       ) {
-        this.grid[neighborgX][neighborgY].status = 'R';
+        if (
+          this.grid[neighborgX][neighborgY].status !== 'S' &&
+          this.grid[neighborgX][neighborgY].status !== 'G'
+        ) {
+          this.grid[neighborgX][neighborgY].status = 'R';
+        }
         nCells.push(this.grid[neighborgX][neighborgY]);
       }
     });
@@ -231,17 +264,4 @@ export class Engine {
   distance = (a: Cell, b: Cell): number => {
     return Math.abs(a.x - b.x + (a.y - b.y));
   };
-
-  printGrid(grid = this.grid) {
-    return;
-    // let pgrid = '';
-    // for (let i = 0; i < rows; i++) {
-    //   pgrid += '\n';
-    //   for (let j = 0; j < cols; j++) {
-    //     pgrid += grid[i][j].status + ' | ';
-    //   }
-    // }
-
-    // console.log(this.gridState);
-  }
 }
