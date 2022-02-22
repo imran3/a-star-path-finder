@@ -1,7 +1,18 @@
 import styled from 'styled-components';
 
-export const GridStyled = styled.div`
-  padding: 1rem;
+export const GridCellStyled = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 8rem;
+  height: 8rem;
+  margin: 0, 5rem;
+  box-shadow: 15px 15px 15px #888888;
+  border: 1px solid #efe7da;
+  font-family: 'Roboto', sans-serif;
+  font-size: 24px;
+  cursor: pointer; ;
 `;
 
 export const GridRowStyled = styled.div`
@@ -9,14 +20,6 @@ export const GridRowStyled = styled.div`
   justify-content: center;
 `;
 
-export const GridCellStyled = styled.div`
-  display: flex;
-  justify-content: center;
-  width: 8rem;
-  height: 8rem;
-  margin: 0, 5rem;
-  padding: 0.5rem;
-  border: 1px solid blue;
-  cursor: pointer;
-  background: ${props => (props.bgColor ? props.bgColor : 'yellow')};
+export const GridStyled = styled.div`
+  padding: 1rem;
 `;

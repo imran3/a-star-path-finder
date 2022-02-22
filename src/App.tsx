@@ -3,9 +3,11 @@ import { useEffect, useState } from 'react';
 
 import './App.css';
 import { Cell, Engine } from './services/engine';
-import { GridCellStyled, GridRowStyled, GridStyled } from './components/styles';
+import { Cell, Engine, newGrid } from './services/engine';
+import { GridRowStyled, GridStyled } from './components/styles';
+import { GridCell } from './components/grid-cell';
 
-const colors = {
+export const colors = {
   StarCommandBlue: '#2274a5',
   KeyLime: '#e7eb90',
   NaplesYellow: '#fadf63',
@@ -13,6 +15,9 @@ const colors = {
   Wine: '#632b30',
   OldBurgundy: '#4f3130',
   Catawba: '#753742',
+  cellNeutral: '#FFF3DE',
+  startCell: '#34c2b1',
+  goalCell: '#b5f5b3',
 };
 
 export const App = () => {
@@ -35,16 +40,38 @@ export const App = () => {
   }, []);
 
   const handleCellClick = cell => {
-    console.log('cell click', cell);
     let ng = [...gridState];
-    ng[engine.startCell.x][engine.startCell.y].status = ' ';
-    ng[engine.startCell.x][engine.startCell.y].bgColor = 'yellow';
+
+    // remove start and goal cells
+    if (startCell && goalCell) {
+      // remove previous start cell
+      ng[startCell.x][startCell.y].status = ' ';
+      ng[startCell.x][startCell.y].bgColor = colors.cellNeutral;
+
+      // remove previous goal cell
+      ng[goalCell.x][goalCell.y].status = ' ';
+      ng[goalCell.x][goalCell.y].bgColor = colors.cellNeutral;
+      setStartCell(null);
+      setGoalCell(null);
+      setGridState(ng);
+
+      return;
+    }
+
+    if (!startCell) {
+      // mark new start cell
+      ng[cell.x][cell.y].status = 'Start';
+      ng[cell.x][cell.y].bgColor = colors.startCell;
+
+      setStartCell(ng[cell.x][cell.y]);
+    } else {
+      // mark new goal cell
+      ng[cell.x][cell.y].status = 'Goal';
+      ng[cell.x][cell.y].bgColor = colors.goalCell;
+      setGoalCell(ng[cell.x][cell.y]);
+    }
 
     setGridState(ng);
-
-    let startCell = { ...cell, bgColor: 'red', status: 'S' };
-    engine.startCell = startCell;
-    engine.putStart(startCell);
   };
 
   return (
@@ -72,29 +99,21 @@ export const App = () => {
 
         <Row>
           <GridStyled>
-            {gridState.map((row, rIndex) => (
-              <GridRowStyled key={rIndex}>
-                {row.map((cell, cIndex) => (
-                  <GridCellStyled
-                    onClick={() => {
-                      handleCellClick(cell);
-                    }}
-                    key={rIndex + '-' + cIndex}
-                    bgColor={cell.bgColor}
-                  >
-                    <div>
-                      <p>
-                        {cell.x} - {cell.y}
-                      </p>
-                      <p>
-                        <b>{cell.status}</b>
-                      </p>
-                      <p>{cell.cameFrom}</p>
-                    </div>
-                  </GridCellStyled>
-                ))}
-              </GridRowStyled>
-            ))}
+            {gridState &&
+              gridState.map((row, rIndex) => (
+                <GridRowStyled key={rIndex}>
+                  {row &&
+                    row.map((cell, cIndex) => (
+                      <GridCell
+                        onClick={() => {
+                          handleCellClick(cell);
+                        }}
+                        cell={cell}
+                        key={rIndex + '-' + cIndex}
+                      ></GridCell>
+                    ))}
+                </GridRowStyled>
+              ))}
           </GridStyled>
         </Row>
 
