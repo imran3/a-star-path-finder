@@ -2,7 +2,6 @@ import { Button, Container, Navbar, Row } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 
 import './App.css';
-import { Cell, Engine } from './services/engine';
 import { Cell, Engine, newGrid } from './services/engine';
 import { GridRowStyled, GridStyled } from './components/styles';
 import { GridCell } from './components/grid-cell';
@@ -107,6 +106,18 @@ export const App = () => {
         <Row>
           <header className="App-header">
             <h1 className="title">A* Star: a path finder algorithm</h1>
+            <h3>
+              {' '}
+              <Row>
+                {!startCell ? (
+                  <p>Click on START CELL</p>
+                ) : !goalCell ? (
+                  <p>Click to set GOAL CELL</p>
+                ) : (
+                  <p> Click a cell to clear START and GOAL.</p>
+                )}
+              </Row>
+            </h3>
           </header>
         </Row>
 
