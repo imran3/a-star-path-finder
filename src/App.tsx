@@ -21,10 +21,15 @@ export const colors = {
 };
 
 export const App = () => {
-  let [gridState, setGridState] = useState<Cell[][]>([]);
+  // push down one level to be in Grid component rather than here
+  let [gridState, setGridState] = useState<Cell[][]>();
   let [frontierState, setFrontierState] = useState<Cell[]>([]);
   let [cameFromState, setCameFromState] = useState<{ [key: string]: Cell }>({});
 
+  let [startCell, setStartCell] = useState<Cell>();
+  let [goalCell, setGoalCell] = useState<Cell>();
+
+  // remove setters, instead return new state
   const engine = new Engine(
     gridState,
     setGridState,
@@ -34,10 +39,18 @@ export const App = () => {
     setCameFromState
   );
 
-  // initialize grid
   useEffect(() => {
-    engine.resetGrid();
+    let ng = newGrid();
+    setGridState(ng);
   }, []);
+
+  useEffect(() => {
+    console.log('START cell updated: ', startCell);
+  }, [startCell]);
+
+  useEffect(() => {
+    console.log('GOAL cell updated: ', goalCell);
+  }, [goalCell]);
 
   const handleCellClick = cell => {
     let ng = [...gridState];
@@ -129,14 +142,22 @@ export const App = () => {
               className="controls"
               style={{ display: 'flex', justifyContent: 'space-between' }}
             >
-              <Button onClick={() => engine.takeStep()}>Take Step</Button>
+              {/* <Button onClick={() => engine.takeStep()}>Take Step</Button> */}
               <Button
-                onClick={() => engine.computeAllPaths()}
+                onClick={e => {
+                  e.preventDefault();
+                }}
                 variant="success"
               >
                 Compute all paths
               </Button>
-              <Button onClick={() => engine.resetGrid()} variant="danger">
+              <Button
+                onClick={e => {
+                  e.preventDefault();
+                  // engine.resetGrid();
+                }}
+                variant="danger"
+              >
                 Reset
               </Button>
             </div>
