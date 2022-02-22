@@ -265,3 +265,20 @@ export class Engine {
     return Math.abs(a.x - b.x + (a.y - b.y));
   };
 }
+export const newGrid = (): Cell[][] => {
+  let grid: Cell[][] = [];
+
+  for (let i = 0; i < rows; i++) {
+    grid[i] = [];
+    for (let j = 0; j < cols; j++) {
+      grid[i][j] = {
+        status: ' ',
+        x: i,
+        y: j,
+        bgColor: colors.cellNeutral,
+      };
+    }
+  }
+
+  return grid;
+};
