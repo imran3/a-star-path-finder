@@ -2,7 +2,12 @@ import { Button, Container, Navbar, Row } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 
 import './App.css';
-import { Cell, Engine, newGrid } from './services/engine';
+import {
+  Cell,
+  computeAllPaths,
+  computePathGrid,
+  newGrid,
+} from './services/engine';
 import { GridRowStyled, GridStyled } from './components/styles';
 import { GridCell } from './components/grid-cell';
 
@@ -22,21 +27,13 @@ export const colors = {
 export const App = () => {
   // push down one level to be in Grid component rather than here
   let [gridState, setGridState] = useState<Cell[][]>();
-  let [frontierState, setFrontierState] = useState<Cell[]>([]);
-  let [cameFromState, setCameFromState] = useState<{ [key: string]: Cell }>({});
-
+  let [paths, setPaths] = useState<Cell[][]>();
   let [startCell, setStartCell] = useState<Cell>();
   let [goalCell, setGoalCell] = useState<Cell>();
+  let [cameFromState, setCameFromState] = useState<{ [key: string]: Cell }>({});
+  let [frontierState, setFrontierState] = useState<Cell[]>([]);
 
   // remove setters, instead return new state
-  const engine = new Engine(
-    gridState,
-    setGridState,
-    frontierState,
-    setFrontierState,
-    cameFromState,
-    setCameFromState
-  );
 
   useEffect(() => {
     let ng = newGrid();
@@ -51,11 +48,12 @@ export const App = () => {
     console.log('GOAL cell updated: ', goalCell);
   }, [goalCell]);
 
-  const handleCellClick = cell => {
+  const handleCellClick = (cell: Cell) => {
     let ng = [...gridState];
 
     // remove start and goal cells
     if (startCell && goalCell) {
+      computeAllPaths(gridState, startCell);
       // remove previous start cell
       ng[startCell.x][startCell.y].status = ' ';
       ng[startCell.x][startCell.y].bgColor = colors.cellNeutral;
@@ -84,6 +82,16 @@ export const App = () => {
     }
 
     setGridState(ng);
+  };
+
+  const reset = () => {
+    setGridState(newGrid());
+    setStartCell(null);
+    setGoalCell(null);
+  };
+
+  const isComputeAllPathsDisabled = () => {
+    return !startCell || !goalCell;
   };
 
   return (
@@ -157,7 +165,19 @@ export const App = () => {
               <Button
                 onClick={e => {
                   e.preventDefault();
+                  let cameFrom = computeAllPaths(gridState, startCell);
+                  console.log('cameFrom', cameFrom);
+                  setCameFromState(cameFrom);
+
+                  let computedPathGrid = computePathGrid(
+                    cameFrom,
+                    startCell,
+                    goalCell
+                  );
+
+                  console.log('grid state', gridState);
                 }}
+                disabled={!startCell || !goalCell}
                 variant="success"
               >
                 Compute all paths
@@ -165,7 +185,7 @@ export const App = () => {
               <Button
                 onClick={e => {
                   e.preventDefault();
-                  // engine.resetGrid();
+                  reset();
                 }}
                 variant="danger"
               >
