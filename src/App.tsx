@@ -1,8 +1,8 @@
-import { Button, Card, Col, Container, Navbar, Row } from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { Button, Container, Navbar, Row } from 'react-bootstrap';
+import { useEffect, useState } from 'react';
+
 import './App.css';
 import { Cell, Engine } from './services/engine';
-import { useEffect, useState } from 'react';
 import { GridCellStyled, GridRowStyled, GridStyled } from './components/styles';
 
 const colors = {
@@ -29,7 +29,7 @@ export const App = () => {
     setCameFromState
   );
 
-  // initialize game
+  // initialize grid
   useEffect(() => {
     engine.resetGrid();
   }, []);
