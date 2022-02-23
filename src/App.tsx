@@ -37,15 +37,17 @@ export const App = () => {
   }, []);
 
   useEffect(() => {
-    if (goalCell?.x === startCell?.x || goalCell?.y === startCell?.y) {
-      console.log('goal is same as start cell.');
-      return;
-    }
     // compute path when goal set
-    if (goalCell) {
+    if (startCell && goalCell) {
+      if (goalCell.x === startCell.x && goalCell.y === startCell.y) {
+        console.log('goal is same as start cell.');
+        return;
+      }
+
       handleComputePathClick();
     }
-  }, [goalCell]);
+  }, [goalCell, startCell]);
+
   const handleCellClick = (cell: Cell) => {
     let ng = [...gridState];
 
