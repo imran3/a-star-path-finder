@@ -36,6 +36,11 @@ export const App = () => {
     setGridState(ng);
   }, []);
 
+  useEffect(() => {
+    if (goalCell) {
+      handleComputePathClick();
+    }
+  }, [goalCell]);
   const handleCellClick = (cell: Cell) => {
     let ng = [...gridState];
 
@@ -65,6 +70,16 @@ export const App = () => {
     setGridState(newGrid());
     setStartCell(null);
     setGoalCell(null);
+  };
+
+  const handleComputePathClick = () => {
+    let cameFrom: Dictionary = computeAllPaths(gridState, startCell);
+    console.log('cameFrom', cameFrom);
+    setCameFromState(cameFrom);
+
+    let computedPathGrid = computePathGrid(cameFrom, goalCell);
+
+    console.log('grid state', gridState);
   };
 
   return (
@@ -138,16 +153,7 @@ export const App = () => {
               <Button
                 onClick={e => {
                   e.preventDefault();
-                  let cameFrom: Dictionary = computeAllPaths(
-                    gridState,
-                    startCell
-                  );
-                  console.log('cameFrom', cameFrom);
-                  setCameFromState(cameFrom);
-
-                  let computedPathGrid = computePathGrid(cameFrom, goalCell);
-
-                  console.log('grid state', gridState);
+                  handleComputePathClick();
                 }}
                 disabled={!startCell || !goalCell}
                 variant="success"

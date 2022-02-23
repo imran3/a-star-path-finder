@@ -7,11 +7,12 @@ export const GridCell = ({ cell, onClick }) => {
       onClick={onClick}
       style={{ background: cell?.bgColor ? cell.bgColor : 'purple' }}
     >
-      <div>
+      <div> </div>
+      {/* <div>
         {cell.x} - {cell.y}
       </div>
       <div>{cell.status}</div>
-      <div>{cell.cameFrom}</div>
+      <div>{cell.cameFrom}</div> */}
     </GridCellStyled>
   );
 };

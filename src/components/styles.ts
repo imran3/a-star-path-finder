@@ -5,8 +5,8 @@ export const GridCellStyled = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 8rem;
-  height: 8rem;
+  width: 4rem;
+  height: 4rem;
   margin: 0, 5rem;
   box-shadow: 15px 15px 15px #888888;
   border: 1px solid #efe7da;

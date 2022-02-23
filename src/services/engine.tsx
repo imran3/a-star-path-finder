@@ -1,8 +1,8 @@
 import { colors } from '../App';
 import { Cell, Dictionary } from '../models/cell';
 
-const rows = 5;
-const cols = 5;
+const rows = 10;
+const cols = 10;
 
 export const newGrid = (): Cell[][] => {
   let grid: Cell[][] = [];
