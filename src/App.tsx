@@ -19,6 +19,7 @@ export const colors = {
   startCell: '#34c2b1',
   goalCell: '#b5f5b3',
   pathCell: '#caf0f8',
+  mouseHoverCell: '#FAC7A7',
 };
 
 export const App = () => {
@@ -133,6 +134,8 @@ export const App = () => {
                           handleCellClick(cell);
                         }}
                         cell={cell}
+                        startCell={startCell}
+                        goalCell={goalCell}
                         key={rIndex + '-' + cIndex}
                       ></GridCell>
                     ))}

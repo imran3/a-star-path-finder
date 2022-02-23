@@ -8,6 +8,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import { GridCellStyled } from './styles';
+import { colors } from '../App';
 
 let dirArrows = {
   left: <FontAwesomeIcon icon={faArrowLeft} />,
@@ -16,8 +17,9 @@ let dirArrows = {
   down: <FontAwesomeIcon icon={faArrowDown} />,
 };
 
-export const GridCell = ({ cell, onClick }) => {
+export const GridCell = ({ cell, startCell, goalCell, onClick }) => {
   let [directionArrow, setDirectionArrow] = useState(null);
+  let [bgHoverColor, setBgHoverColor] = useState('');
 
   // display/clear direction arrows
   useEffect(() => {
@@ -42,10 +44,30 @@ export const GridCell = ({ cell, onClick }) => {
     }
   }, [cell, cell.cameFrom]);
 
+  const setHoverBgColor = () => {
+    if (startCell && goalCell) return setBgHoverColor(colors.mouseHoverCell);
+
+    if (!startCell) return setBgHoverColor(colors.startCell);
+
+    if (startCell && !goalCell) return setBgHoverColor(colors.goalCell);
+  };
+
+  const removeHoverBgColor = () => {
+    setBgHoverColor(null);
+  };
+
   return (
     <GridCellStyled
       onClick={onClick}
-      style={{ background: cell?.bgColor ? cell.bgColor : 'purple' }}
+      style={{
+        background: bgHoverColor
+          ? bgHoverColor
+          : cell?.bgColor
+          ? cell.bgColor
+          : 'purple',
+      }}
+      onMouseEnter={() => setHoverBgColor()}
+      onMouseLeave={() => removeHoverBgColor()}
     >
       <div>{directionArrow ? directionArrow : ''}</div>
       {/* <div>
