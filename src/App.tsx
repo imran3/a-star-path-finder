@@ -30,15 +30,13 @@ export const App = () => {
   let [pathGrid, setPathGrid] = useState<Cell[][]>();
   let [cameFromState, setCameFromState] = useState<Dictionary>({});
 
-  // remove setters, instead return new state
-
   useEffect(() => {
     let ng = newGrid();
     setGridState(ng);
   }, []);
 
+  // compute path when goal set
   useEffect(() => {
-    // compute path when goal set
     if (startCell && goalCell) {
       if (goalCell.x === startCell.x && goalCell.y === startCell.y) {
         console.log('goal is same as start cell.');
@@ -64,14 +62,14 @@ export const App = () => {
       ng[cell.x][cell.y].bgColor = colors.startCell;
 
       setStartCell(ng[cell.x][cell.y]);
+      setGridState(ng);
     } else {
       // mark new goal cell
       ng[cell.x][cell.y].status = 'Goal';
       ng[cell.x][cell.y].bgColor = colors.goalCell;
       setGoalCell(ng[cell.x][cell.y]);
+      setGridState(ng);
     }
-
-    setGridState(ng);
   };
 
   const reset = () => {
@@ -85,6 +83,8 @@ export const App = () => {
     setCameFromState(cameFrom);
 
     let computedPathGrid = computePathGrid(cameFrom, goalCell);
+    setPathGrid(computedPathGrid);
+    setGridState(computedPathGrid);
   };
 
   return (
@@ -157,7 +157,7 @@ export const App = () => {
               style={{ display: 'flex', justifyContent: 'space-between' }}
             >
               {/* <Button onClick={() => engine.takeStep()}>Take Step</Button> */}
-              <Button
+              {/* <Button
                 onClick={e => {
                   e.preventDefault();
                   handleComputePathClick();
@@ -166,7 +166,7 @@ export const App = () => {
                 variant="success"
               >
                 Compute all paths
-              </Button>
+              </Button> */}
               <Button
                 onClick={e => {
                   e.preventDefault();

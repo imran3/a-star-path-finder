@@ -54,9 +54,8 @@ export const takeStep = (
     let currentNeighbors = cellNeighbors(grid, current);
 
     currentNeighbors.forEach(neighborgCell => {
-      if (neighborgCell.x + '-' + neighborgCell.y in cameFrom)
-        // skip - cell already explored (in cameFrom map)'
-        return;
+      // cell already explored (in cameFrom map)? skip
+      if (neighborgCell.x + '-' + neighborgCell.y in cameFrom) return;
 
       frontier.push(neighborgCell);
       cameFrom[neighborgCell.x + '-' + neighborgCell.y] = current;
@@ -104,8 +103,6 @@ export const computePathGrid = (
   cameFrom: Dictionary,
   goalCell: Cell
 ): Cell[][] => {
-  cameFrom[goalCell.x + '-' + goalCell.y].status = goalCell.status;
-
   let pathGrid: Cell[][] = newGrid();
 
   let pathCells = getPath(cameFrom, goalCell);
@@ -116,7 +113,7 @@ export const computePathGrid = (
   // add coordinate of origin cell
   for (const [key, value] of Object.entries(cameFrom)) {
     let [x, y] = key.split('-');
-    if (value) {
+    if (pathGrid[x][y].status === 'P') {
       pathGrid[x][y].cameFrom = value['x'] + '-' + value['y'];
     }
   }
@@ -127,18 +124,24 @@ export const getPath = (cameFrom: Dictionary, goalCell: Cell): Cell[] => {
   let current = goalCell;
   let path: Cell[] = [];
 
-  let x = 0;
-  while (current && x < 100) {
-    current.bgColor = colors.pathCell; // modify input !! impure function now, side effect: displaying path too early on screen
-    path.push(current);
-    current = cameFrom[current.x + '-' + current.y];
+  while (current) {
+    let pc = {
+      ...current,
+      bgColor: colors.pathCell,
+      status: 'P',
+    };
 
-    x++;
+    path.push(pc);
+    current = cameFrom[current.x + '-' + current.y];
   }
 
-  // set start and goal cells bg Colors
-  path[path.length - 1].bgColor = colors.startCell;
-  path[0].bgColor = colors.goalCell;
+  // set start and goal cells status and bgColor
+  path[path.length - 1] = {
+    ...path[path.length - 1],
+    bgColor: colors.startCell,
+    status: 'S',
+  };
+  path[0] = { ...path[0], bgColor: colors.goalCell, status: goalCell.status };
 
   return path;
 };
