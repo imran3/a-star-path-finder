@@ -24,9 +24,9 @@ export const colors = {
 export const App = () => {
   // push down one level to be in Grid component rather than here
   let [gridState, setGridState] = useState<Cell[][]>();
-  let [pathGrid, setPathGrid] = useState<Cell[][]>();
   let [startCell, setStartCell] = useState<Cell>();
   let [goalCell, setGoalCell] = useState<Cell>();
+  let [pathGrid, setPathGrid] = useState<Cell[][]>();
   let [cameFromState, setCameFromState] = useState<Dictionary>({});
 
   // remove setters, instead return new state
@@ -110,11 +110,11 @@ export const App = () => {
               {' '}
               <Row>
                 {!startCell ? (
-                  <p>Click on START CELL</p>
+                  <p>Click on START cekk</p>
                 ) : !goalCell ? (
-                  <p>Click to set GOAL CELL</p>
+                  <p>Click on GOAL cell</p>
                 ) : (
-                  <p> Click a cell to clear START and GOAL.</p>
+                  <p> Click to reset grid</p>
                 )}
               </Row>
             </h3>
