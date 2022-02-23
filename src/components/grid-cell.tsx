@@ -23,7 +23,14 @@ export const GridCell = ({ cell, startCell, goalCell, onClick }) => {
 
   // display/clear direction arrows
   useEffect(() => {
+    // remove arrow if no path to display
     if (!cell.cameFrom) {
+      setDirectionArrow(null);
+      return;
+    }
+
+    // no arrow for goal cell
+    if (cell.x === goalCell.x && cell.y === goalCell.y) {
       setDirectionArrow(null);
       return;
     }
@@ -42,7 +49,7 @@ export const GridCell = ({ cell, startCell, goalCell, onClick }) => {
 
       setDirectionArrow(arrow);
     }
-  }, [cell, cell.cameFrom]);
+  }, [cell, cell.cameFrom, goalCell]);
 
   const setHoverBgColor = () => {
     if (startCell && goalCell) return setBgHoverColor(colors.mouseHoverCell);
