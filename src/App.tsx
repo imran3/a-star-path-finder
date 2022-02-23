@@ -111,7 +111,7 @@ export const App = () => {
               {' '}
               <Row>
                 {!startCell ? (
-                  <p>Click on START cekk</p>
+                  <p>Click on START cell</p>
                 ) : !goalCell ? (
                   <p>Click on GOAL cell</p>
                 ) : (
