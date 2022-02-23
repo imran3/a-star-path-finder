@@ -81,12 +81,9 @@ export const App = () => {
 
   const handleComputePathClick = () => {
     let cameFrom: Dictionary = computeAllPaths(gridState, startCell);
-    console.log('cameFrom', cameFrom);
     setCameFromState(cameFrom);
 
     let computedPathGrid = computePathGrid(cameFrom, goalCell);
-
-    console.log('grid state', gridState);
   };
 
   return (

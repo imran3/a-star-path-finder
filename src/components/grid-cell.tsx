@@ -1,14 +1,23 @@
 import { useEffect, useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faArrowLeft,
+  faArrowRight,
+  faArrowDown,
+  faArrowUp,
+} from '@fortawesome/free-solid-svg-icons';
+
 import { GridCellStyled } from './styles';
+
+let dirArrows = {
+  left: <FontAwesomeIcon icon={faArrowLeft} />,
+  right: <FontAwesomeIcon icon={faArrowRight} />,
+  up: <FontAwesomeIcon icon={faArrowUp} />,
+  down: <FontAwesomeIcon icon={faArrowDown} />,
+};
 
 export const GridCell = ({ cell, onClick }) => {
   let [directionArrow, setDirectionArrow] = useState(null);
-  let dirArrows = {
-    left: '←',
-    right: '→',
-    up: '↑',
-    down: '↓',
-  };
 
   // display/clear direction arrows
   useEffect(() => {
@@ -17,22 +26,19 @@ export const GridCell = ({ cell, onClick }) => {
       return;
     }
 
-    let cm = cell.cameFrom;
-    if (cm) {
-      let arrow = '';
+    if (cell.cameFrom) {
+      let arrow = null;
 
-      let [cmX, cmY] = [...cm.split('-')];
-      cmX = parseInt(cmX, 10);
-      cmY = parseInt(cmY, 10);
-      if (cell?.x === cmX) {
-        arrow = cell?.y > cmY ? dirArrows.left : dirArrows.right;
-        setDirectionArrow(arrow);
-      }
+      let [cfX, cfY] = [...cell.cameFrom.split('-')];
+      cfX = parseInt(cfX, 10);
+      cfY = parseInt(cfY, 10);
 
-      if (cell.y === cmY) {
-        arrow = cell?.x > cmX ? dirArrows.up : dirArrows.down;
-        setDirectionArrow(arrow);
-      }
+      if (cell.x === cfX)
+        arrow = cell.y > cfY ? dirArrows.right : dirArrows.left;
+
+      if (cell.y === cfY) arrow = cell.x > cfX ? dirArrows.down : dirArrows.up;
+
+      setDirectionArrow(arrow);
     }
   }, [cell, cell.cameFrom]);
 
@@ -41,7 +47,7 @@ export const GridCell = ({ cell, onClick }) => {
       onClick={onClick}
       style={{ background: cell?.bgColor ? cell.bgColor : 'purple' }}
     >
-      <div>{directionArrow ? directionArrow : '*'}</div>
+      <div>{directionArrow ? directionArrow : ''}</div>
       {/* <div>
         {cell.x} - {cell.y}
       </div>
