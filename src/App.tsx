@@ -37,6 +37,11 @@ export const App = () => {
   }, []);
 
   useEffect(() => {
+    if (goalCell?.x === startCell?.x || goalCell?.y === startCell?.y) {
+      console.log('goal is same as start cell.');
+      return;
+    }
+    // compute path when goal set
     if (goalCell) {
       handleComputePathClick();
     }
