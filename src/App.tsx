@@ -2,10 +2,12 @@ import { Button, Container, Navbar, Row } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 
 import './App.css';
-import { Cell, Engine } from './services/engine';
-import { GridCellStyled, GridRowStyled, GridStyled } from './components/styles';
+import { computeAllPaths, computePathGrid, newGrid } from './services/engine';
+import { GridRowStyled, GridStyled } from './components/styles';
+import { GridCell } from './components/grid-cell';
+import { Cell, Dictionary } from './models/cell';
 
-const colors = {
+export const colors = {
   StarCommandBlue: '#2274a5',
   KeyLime: '#e7eb90',
   NaplesYellow: '#fadf63',
@@ -13,38 +15,76 @@ const colors = {
   Wine: '#632b30',
   OldBurgundy: '#4f3130',
   Catawba: '#753742',
+  cellNeutral: '#FFF3DE',
+  startCell: '#34c2b1',
+  goalCell: '#b5f5b3',
+  pathCell: '#caf0f8',
+  mouseHoverCell: '#FAC7A7',
 };
 
 export const App = () => {
-  let [gridState, setGridState] = useState<Cell[][]>([]);
-  let [frontierState, setFrontierState] = useState<Cell[]>([]);
-  let [cameFromState, setCameFromState] = useState<{ [key: string]: Cell }>({});
+  // push down one level to be in Grid component rather than here
+  let [gridState, setGridState] = useState<Cell[][]>();
+  let [startCell, setStartCell] = useState<Cell>();
+  let [goalCell, setGoalCell] = useState<Cell>();
+  let [pathGrid, setPathGrid] = useState<Cell[][]>();
+  let [cameFromState, setCameFromState] = useState<Dictionary>({});
 
-  const engine = new Engine(
-    gridState,
-    setGridState,
-    frontierState,
-    setFrontierState,
-    cameFromState,
-    setCameFromState
-  );
-
-  // initialize grid
   useEffect(() => {
-    engine.resetGrid();
+    let ng = newGrid();
+    setGridState(ng);
   }, []);
 
-  const handleCellClick = cell => {
-    console.log('cell click', cell);
+  // compute path when goal set
+  useEffect(() => {
+    if (startCell && goalCell) {
+      if (goalCell.x === startCell.x && goalCell.y === startCell.y) {
+        console.log('goal is same as start cell.');
+        return;
+      }
+
+      handleComputePathClick();
+    }
+  }, [goalCell, startCell]);
+
+  const handleCellClick = (cell: Cell) => {
     let ng = [...gridState];
-    ng[engine.startCell.x][engine.startCell.y].status = ' ';
-    ng[engine.startCell.x][engine.startCell.y].bgColor = 'yellow';
 
-    setGridState(ng);
+    // remove start and goal cells
+    if (startCell && goalCell) {
+      reset();
+      return;
+    }
 
-    let startCell = { ...cell, bgColor: 'red', status: 'S' };
-    engine.startCell = startCell;
-    engine.putStart(startCell);
+    if (!startCell) {
+      // mark new start cell
+      ng[cell.x][cell.y].status = 'Start';
+      ng[cell.x][cell.y].bgColor = colors.startCell;
+
+      setStartCell(ng[cell.x][cell.y]);
+      setGridState(ng);
+    } else {
+      // mark new goal cell
+      ng[cell.x][cell.y].status = 'Goal';
+      ng[cell.x][cell.y].bgColor = colors.goalCell;
+      setGoalCell(ng[cell.x][cell.y]);
+      setGridState(ng);
+    }
+  };
+
+  const reset = () => {
+    setGridState(newGrid());
+    setStartCell(null);
+    setGoalCell(null);
+  };
+
+  const handleComputePathClick = () => {
+    let cameFrom: Dictionary = computeAllPaths(gridState, startCell);
+    setCameFromState(cameFrom);
+
+    let computedPathGrid = computePathGrid(cameFrom, goalCell);
+    setPathGrid(computedPathGrid);
+    setGridState(computedPathGrid);
   };
 
   return (
@@ -67,34 +107,40 @@ export const App = () => {
         <Row>
           <header className="App-header">
             <h1 className="title">A* Star: a path finder algorithm</h1>
+            <h3>
+              {' '}
+              <Row>
+                {!startCell ? (
+                  <p>Click on START cell</p>
+                ) : !goalCell ? (
+                  <p>Click on GOAL cell</p>
+                ) : (
+                  <p> Click to reset grid</p>
+                )}
+              </Row>
+            </h3>
           </header>
         </Row>
 
         <Row>
           <GridStyled>
-            {gridState.map((row, rIndex) => (
-              <GridRowStyled key={rIndex}>
-                {row.map((cell, cIndex) => (
-                  <GridCellStyled
-                    onClick={() => {
-                      handleCellClick(cell);
-                    }}
-                    key={rIndex + '-' + cIndex}
-                    bgColor={cell.bgColor}
-                  >
-                    <div>
-                      <p>
-                        {cell.x} - {cell.y}
-                      </p>
-                      <p>
-                        <b>{cell.status}</b>
-                      </p>
-                      <p>{cell.cameFrom}</p>
-                    </div>
-                  </GridCellStyled>
-                ))}
-              </GridRowStyled>
-            ))}
+            {gridState &&
+              gridState.map((row, rIndex) => (
+                <GridRowStyled key={rIndex}>
+                  {row &&
+                    row.map((cell, cIndex) => (
+                      <GridCell
+                        onClick={() => {
+                          handleCellClick(cell);
+                        }}
+                        cell={cell}
+                        startCell={startCell}
+                        goalCell={goalCell}
+                        key={rIndex + '-' + cIndex}
+                      ></GridCell>
+                    ))}
+                </GridRowStyled>
+              ))}
           </GridStyled>
         </Row>
 
@@ -110,14 +156,24 @@ export const App = () => {
               className="controls"
               style={{ display: 'flex', justifyContent: 'space-between' }}
             >
-              <Button onClick={() => engine.takeStep()}>Take Step</Button>
-              <Button
-                onClick={() => engine.computeAllPaths()}
+              {/* <Button onClick={() => engine.takeStep()}>Take Step</Button> */}
+              {/* <Button
+                onClick={e => {
+                  e.preventDefault();
+                  handleComputePathClick();
+                }}
+                disabled={!startCell || !goalCell}
                 variant="success"
               >
                 Compute all paths
-              </Button>
-              <Button onClick={() => engine.resetGrid()} variant="danger">
+              </Button> */}
+              <Button
+                onClick={e => {
+                  e.preventDefault();
+                  reset();
+                }}
+                variant="danger"
+              >
                 Reset
               </Button>
             </div>
