@@ -120,7 +120,6 @@ export const computePathGrid = (
       pathGrid[x][y].cameFrom = value['x'] + '-' + value['y'];
     }
   }
-
   return pathGrid;
 };
 
@@ -137,9 +136,9 @@ export const getPath = (cameFrom: Dictionary, goalCell: Cell): Cell[] => {
     x++;
   }
 
-  if (x === 100) {
-    console.log('stopped infin loop getPath()');
-  }
+  // set start and goal cells bg Colors
+  path[path.length - 1].bgColor = colors.startCell;
+  path[0].bgColor = colors.goalCell;
 
   return path;
 };
