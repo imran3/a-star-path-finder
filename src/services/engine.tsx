@@ -1,12 +1,5 @@
 import { colors } from '../App';
-
-export interface Cell {
-  x: number;
-  y: number;
-  status: string;
-  bgColor: string;
-  cameFrom?: string;
-}
+import { Cell, Dictionary } from '../models/cell';
 
 const rows = 5;
 const cols = 5;
@@ -43,15 +36,14 @@ export const computeAllPaths = (grid: Cell[][], startCell: Cell) => {
     takeStep(grid, frontier, cameFrom);
     x++;
   }
-
-  if (x === 1000) {
-    console.log('stopped infin loop computeAllPaths()');
-  }
-
   return cameFrom;
 };
 
-export const takeStep = (grid, frontier, cameFrom): void => {
+export const takeStep = (
+  grid: Cell[][],
+  frontier: Cell[],
+  cameFrom: Dictionary
+): void => {
   let current = frontier[0]; // pull unexplored cell from frontier (open list)
   frontier.shift(); // remove currently explored cell from open list
 
@@ -62,26 +54,34 @@ export const takeStep = (grid, frontier, cameFrom): void => {
     let currentNeighbors = cellNeighbors(grid, current);
 
     currentNeighbors.forEach(neighborgCell => {
-      if (neighborgCell.x + '-' + neighborgCell.y in cameFrom) {
-        console.log('cell already explored (in came_from)');
-      } else {
-        // console.log('exploring new cell: came_from', cameFrom);
-        frontier.push(neighborgCell);
+      if (neighborgCell.x + '-' + neighborgCell.y in cameFrom)
+        // skip - cell already explored (in cameFrom map)'
+        return;
 
-        cameFrom[neighborgCell.x + '-' + neighborgCell.y] = current;
-      }
+      frontier.push(neighborgCell);
+      cameFrom[neighborgCell.x + '-' + neighborgCell.y] = current;
     });
   }
 };
 
 export const cellNeighbors = (grid: Cell[][], cell: Cell): Cell[] => {
   let nCells: Cell[] = [];
-  const ngCellIndexes: number[][] = [
+  let ngCellIndexes: number[][] = [
     [-1, 0],
     [1, 0],
     [0, -1],
     [0, 1],
   ];
+
+  const diagonalCellIndexes: number[][] = [
+    [-1, -1],
+    [-1, 1],
+    [1, -1],
+    [1, 1],
+  ];
+
+  // un-comment to enable diagonal steps
+  //ngCellIndexes = ngCellIndexes.concat(diagonalCellIndexes);
 
   ngCellIndexes.forEach(([nx, ny]) => {
     let neighborgX = cell.x + nx;
@@ -101,15 +101,14 @@ export const cellNeighbors = (grid: Cell[][], cell: Cell): Cell[] => {
 };
 
 export const computePathGrid = (
-  cameFrom,
-  startCell: Cell,
+  cameFrom: Dictionary,
   goalCell: Cell
 ): Cell[][] => {
   cameFrom[goalCell.x + '-' + goalCell.y].status = goalCell.status;
 
   let pathGrid: Cell[][] = newGrid();
 
-  let pathCells = getPath(cameFrom, startCell, goalCell);
+  let pathCells = getPath(cameFrom, goalCell);
   pathCells.forEach(cell => {
     pathGrid[cell.x][cell.y] = cell;
   });
@@ -125,13 +124,13 @@ export const computePathGrid = (
   return pathGrid;
 };
 
-export const getPath = (cameFrom, startCell: Cell, goalCell: Cell): Cell[] => {
+export const getPath = (cameFrom: Dictionary, goalCell: Cell): Cell[] => {
   let current = goalCell;
   let path: Cell[] = [];
 
   let x = 0;
   while (current && x < 100) {
-    current.bgColor = 'pink';
+    current.bgColor = colors.pathCell; // modify input !! impure function now, side effect: displaying path too early on screen
     path.push(current);
     current = cameFrom[current.x + '-' + current.y];
 

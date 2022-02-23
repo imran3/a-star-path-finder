@@ -2,14 +2,10 @@ import { Button, Container, Navbar, Row } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 
 import './App.css';
-import {
-  Cell,
-  computeAllPaths,
-  computePathGrid,
-  newGrid,
-} from './services/engine';
+import { computeAllPaths, computePathGrid, newGrid } from './services/engine';
 import { GridRowStyled, GridStyled } from './components/styles';
 import { GridCell } from './components/grid-cell';
+import { Cell, Dictionary } from './models/cell';
 
 export const colors = {
   StarCommandBlue: '#2274a5',
@@ -22,16 +18,16 @@ export const colors = {
   cellNeutral: '#FFF3DE',
   startCell: '#34c2b1',
   goalCell: '#b5f5b3',
+  pathCell: '#caf0f8',
 };
 
 export const App = () => {
   // push down one level to be in Grid component rather than here
   let [gridState, setGridState] = useState<Cell[][]>();
-  let [paths, setPaths] = useState<Cell[][]>();
+  let [pathGrid, setPathGrid] = useState<Cell[][]>();
   let [startCell, setStartCell] = useState<Cell>();
   let [goalCell, setGoalCell] = useState<Cell>();
-  let [cameFromState, setCameFromState] = useState<{ [key: string]: Cell }>({});
-  let [frontierState, setFrontierState] = useState<Cell[]>([]);
+  let [cameFromState, setCameFromState] = useState<Dictionary>({});
 
   // remove setters, instead return new state
 
@@ -40,31 +36,12 @@ export const App = () => {
     setGridState(ng);
   }, []);
 
-  useEffect(() => {
-    console.log('START cell updated: ', startCell);
-  }, [startCell]);
-
-  useEffect(() => {
-    console.log('GOAL cell updated: ', goalCell);
-  }, [goalCell]);
-
   const handleCellClick = (cell: Cell) => {
     let ng = [...gridState];
 
     // remove start and goal cells
     if (startCell && goalCell) {
-      computeAllPaths(gridState, startCell);
-      // remove previous start cell
-      ng[startCell.x][startCell.y].status = ' ';
-      ng[startCell.x][startCell.y].bgColor = colors.cellNeutral;
-
-      // remove previous goal cell
-      ng[goalCell.x][goalCell.y].status = ' ';
-      ng[goalCell.x][goalCell.y].bgColor = colors.cellNeutral;
-      setStartCell(null);
-      setGoalCell(null);
-      setGridState(ng);
-
+      reset();
       return;
     }
 
@@ -88,10 +65,6 @@ export const App = () => {
     setGridState(newGrid());
     setStartCell(null);
     setGoalCell(null);
-  };
-
-  const isComputeAllPathsDisabled = () => {
-    return !startCell || !goalCell;
   };
 
   return (
@@ -165,15 +138,14 @@ export const App = () => {
               <Button
                 onClick={e => {
                   e.preventDefault();
-                  let cameFrom = computeAllPaths(gridState, startCell);
+                  let cameFrom: Dictionary = computeAllPaths(
+                    gridState,
+                    startCell
+                  );
                   console.log('cameFrom', cameFrom);
                   setCameFromState(cameFrom);
 
-                  let computedPathGrid = computePathGrid(
-                    cameFrom,
-                    startCell,
-                    goalCell
-                  );
+                  let computedPathGrid = computePathGrid(cameFrom, goalCell);
 
                   console.log('grid state', gridState);
                 }}
