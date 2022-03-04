@@ -1,4 +1,4 @@
-import { colors } from '../App';
+import { colors } from '../constants';
 import { Cell, Dictionary } from '../models/cell';
 
 const rows = 10;
@@ -46,9 +46,6 @@ export const takeStep = (
 ): void => {
   let current = frontier[0]; // pull unexplored cell from frontier (open list)
   frontier.shift(); // remove currently explored cell from open list
-
-  // current.bgColor = 'blue';
-  // this.updateGridCellBgColor(current.x, current.y, 'blue');
 
   if (current) {
     let currentNeighbors = cellNeighbors(grid, current);
