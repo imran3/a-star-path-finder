@@ -23,3 +23,11 @@ export const GridRowStyled = styled.div`
 export const GridStyled = styled.div`
   padding: 1rem;
 `;
+
+export const FooterStyled = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: auto;
+  padding: 1rem;
+`;
