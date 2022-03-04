@@ -26,7 +26,6 @@ export const GridStyled = styled.div`
 
 export const FooterStyled = styled.div`
   display: flex;
-  flex-direction: column;
   justify-content: center;
   margin-top: auto;
   padding: 1rem;
