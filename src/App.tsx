@@ -1,5 +1,3 @@
-import { Container, Row } from 'react-bootstrap';
-
 import './App.css';
 import { colors } from './constants';
 import { TopNavbar } from './components/top-navbar';

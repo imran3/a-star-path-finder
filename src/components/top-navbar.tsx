@@ -1,6 +1,6 @@
 import { Container, Navbar } from 'react-bootstrap';
 
-export const TopNavbar = props => {
+export const TopNavbar = () => {
   return (
     <Navbar bg="dark" variant="dark" style={{ marginBottom: '1rem' }}>
       <Container>
