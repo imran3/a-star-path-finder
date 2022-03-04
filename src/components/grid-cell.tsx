@@ -8,7 +8,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import { GridCellStyled } from './styles';
-import { colors } from '../App';
+import { colors } from '../constants';
 
 let dirArrows = {
   left: <FontAwesomeIcon icon={faArrowLeft} />,
@@ -77,11 +77,7 @@ export const GridCell = ({ cell, startCell, goalCell, onClick }) => {
       onMouseLeave={() => removeHoverBgColor()}
     >
       <div>{directionArrow ? directionArrow : ''}</div>
-      {/* <div>
-        {cell.x} - {cell.y}
-      </div>
-      <div>{cell.status}</div>
-      <div>{cell.cameFrom}</div> */}
+      {/* <div>{cell.status}</div> */}
     </GridCellStyled>
   );
 };
